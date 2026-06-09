@@ -33,11 +33,20 @@ class ABDMAuthentication(JWTAuthentication):
                "verify_aud": False,
         },)
 
-        logger.info(f"ABDM JWT payload: {payload}")
+        logger.info(f"ABDM JWT claims: aud={payload.get('aud')} azp={payload.get('azp')}")
+
+        if payload.get("aud"):
+          return jwt.decode(
+            token,
+            key=public_key,
+            audience="account",
+            algorithms=["RS256"],)
+
+
 
         return jwt.decode(
           #  token, key=public_key, audience="account", algorithms=["RS256"]
-          token, key=public_key, algorithms=["RS256"]
+          token, key=public_key, algorithms=["RS256"], options={"verify_aud": False},
         )
 
     def authenticate_header(self, request):
