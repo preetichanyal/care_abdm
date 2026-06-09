@@ -36,7 +36,8 @@ class ABDMAuthentication(JWTAuthentication):
         logger.info(f"ABDM JWT payload: {payload}")
 
         return jwt.decode(
-            token, key=public_key, audience="account", algorithms=["RS256"]
+          #  token, key=public_key, audience="account", algorithms=["RS256"]
+          token, key=public_key, algorithms=["RS256"]
         )
 
     def authenticate_header(self, request):
