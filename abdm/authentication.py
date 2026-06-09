@@ -26,6 +26,15 @@ class ABDMAuthentication(JWTAuthentication):
         )
         jwk = public_key.json()["keys"][0]
         public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
+
+        payload= jwt.decode(token, options={
+               "verify_signature": False,
+               "verify_exp": False,
+               "verify_aud": False,
+        },)
+
+        logger.info(f"ABDM JWT payload: {payload}")
+
         return jwt.decode(
             token, key=public_key, audience="account", algorithms=["RS256"]
         )
@@ -35,9 +44,15 @@ class ABDMAuthentication(JWTAuthentication):
 
     def authenticate(self, request):
         jwt_token = request.META.get("HTTP_AUTHORIZATION")
+
+        logger.info(
+          f"Authorization header present: {jwt_token is not None}")
+        
         if jwt_token is None:
             return None
         jwt_token = self.get_jwt_token(jwt_token)
+
+        logger.info(f"JWT token length: {len(jwt_token)}")
 
         abdm_cert_url = f"{settings.ABDM_GATEWAY_URL}/gateway/v3/certs"
         validated_token = self.get_validated_token(abdm_cert_url, jwt_token)
