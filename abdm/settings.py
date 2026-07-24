@@ -109,11 +109,11 @@ REQUIRED_SETTINGS = {
 }
 
 DEFAULTS = {
-    "ABDM_CLIENT_ID": "SBX_001",
-    "ABDM_CLIENT_SECRET": "xxxx",
+    "ABDM_CLIENT_ID": "",
+    "ABDM_CLIENT_SECRET": "",
     "ABDM_AUTH_URL": "",
-    "ABDM_GATEWAY_URL": "https://dev.abdm.gov.in/api/hiecm",
-    "ABDM_ABHA_URL": "https://abhasbx.abdm.gov.in/abha/api",
+    "ABDM_GATEWAY_URL": "https://apis.abdm.gov.in/api/hiecm",
+    "ABDM_ABHA_URL": "https://abha.abdm.gov.in/api/abha",
     "ABDM_FACILITY_URL": "https://facilitysbx.abdm.gov.in",
     "ABDM_HIP_NAME_PREFIX": "",
     "ABDM_HIP_NAME_SUFFIX": "",
