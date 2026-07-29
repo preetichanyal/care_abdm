@@ -94,7 +94,7 @@ class PrescriptionCompositionMixin:
         prescriptions: list[MedicationRequestModel],
         care_context_id: str = uuid(),
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._prescription_composition(prescriptions, care_context_id)
@@ -103,12 +103,3 @@ class PrescriptionCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-            logger.info(
-            "Prescription FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-            logger.exception("Failed to serialize Prescription bundle")
-
-        return bundle

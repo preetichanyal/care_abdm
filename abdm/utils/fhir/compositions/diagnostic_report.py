@@ -75,7 +75,7 @@ class DiagnosticReportCompositionMixin:
         diagnostic_report: DiagnosticReportModel,
         care_context_id: str = uuid(),
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._diagnostic_report_composition(
@@ -86,12 +86,3 @@ class DiagnosticReportCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-            logger.info(
-            "Diagnostic Report FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-            logger.exception("Failed to serialize Diagnostic Report bundle")
-
-        return bundle

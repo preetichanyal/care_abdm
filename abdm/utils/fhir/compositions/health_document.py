@@ -81,7 +81,7 @@ class HealthDocumentCompositionMixin:
     def create_health_document_record(
         self, file: FileUploadModel, care_context_id: str = uuid()
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._health_document_composition(file, care_context_id)
@@ -90,12 +90,3 @@ class HealthDocumentCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-            logger.info(
-            "Health Document FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-            logger.exception("Failed to serialize Health Document bundle")
-
-        return bundle

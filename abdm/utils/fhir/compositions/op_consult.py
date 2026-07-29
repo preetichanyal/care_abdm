@@ -184,7 +184,7 @@ class OPConsultCompositionMixin:
     def create_op_consult_record(
         self, encounter: EncounterModel, care_context_id: str = uuid()
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._op_consult_composition(encounter, care_context_id)
@@ -193,12 +193,3 @@ class OPConsultCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-            logger.info(
-            "OP Consult FHIR Bundle:\n%s",
-            bundle.json(indent=2)
-        )
-        except Exception:
-            logger.exception("Failed to serialize OP Consult bundle")
-
-        return bundle

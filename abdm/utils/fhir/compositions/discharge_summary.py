@@ -176,7 +176,7 @@ class DischargeSummaryCompositionMixin:
     def create_discharge_summary_record(
         self, encounter: EncounterModel, care_context_id: str = uuid()
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._discharge_summary_composition(encounter, care_context_id)
@@ -185,12 +185,3 @@ class DischargeSummaryCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-            logger.info(
-            "Discharge Summary FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-            logger.exception("Failed to serialize Discharge Summary bundle")
-
-        return bundle

@@ -77,7 +77,7 @@ class WellnessCompositionMixin:
         questionnaire_response: QuestionnaireResponseModel,
         care_context_id: str = uuid(),
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._wellness_composition(questionnaire_response, care_context_id)
@@ -86,13 +86,3 @@ class WellnessCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-           logger.info(
-            "Wellness FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-            logger.exception("Failed to serialize Wellness bundle")
-
-        return bundle
- 

@@ -81,7 +81,7 @@ class InvoiceRecordCompositionMixin:
         invoice: InvoiceModel,
         care_context_id: str = uuid(),
     ):
-        bundle= self._bundle(
+        return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._invoice_record_composition(invoice, care_context_id)
@@ -90,12 +90,3 @@ class InvoiceRecordCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
-        try:
-           logger.info(
-            "Invoice FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
-        )
-        except Exception:
-           logger.exception("Failed to serialize Invoice bundle")
-
-        return bundle
