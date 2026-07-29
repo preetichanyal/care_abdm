@@ -196,7 +196,7 @@ class OPConsultCompositionMixin:
         try:
             logger.info(
             "OP Consult FHIR Bundle:\n%s",
-            json.dumps(bundle.model_dump(mode="json"), indent=2),
+            bundle.json(indent=2)
         )
         except Exception:
             logger.exception("Failed to serialize OP Consult bundle")
