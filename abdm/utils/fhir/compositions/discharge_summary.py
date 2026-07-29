@@ -7,6 +7,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import uuid
 from care.emr.models.allergy_intolerance import (
     AllergyIntolerance as AllergyIntoleranceModel,
@@ -171,7 +176,7 @@ class DischargeSummaryCompositionMixin:
     def create_discharge_summary_record(
         self, encounter: EncounterModel, care_context_id: str = uuid()
     ):
-        return self._bundle(
+        bundle= self._bundle(
             entries=[
                 self._bundle_entry(
                     self._discharge_summary_composition(encounter, care_context_id)
@@ -180,3 +185,12 @@ class DischargeSummaryCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
+        try:
+            logger.info(
+            "Discharge Summary FHIR Bundle:\n%s",
+            json.dumps(bundle.model_dump(mode="json"), indent=2),
+        )
+        except Exception:
+            logger.exception("Failed to serialize Discharge Summary bundle")
+
+        return bundle

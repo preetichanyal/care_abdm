@@ -7,6 +7,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import ABDMAPIException, uuid
 from care.emr.models.encounter import Encounter as EncounterModel
 from care.emr.models.file_upload import FileUpload as FileUploadModel
@@ -76,7 +81,7 @@ class HealthDocumentCompositionMixin:
     def create_health_document_record(
         self, file: FileUploadModel, care_context_id: str = uuid()
     ):
-        return self._bundle(
+        bundle= self._bundle(
             entries=[
                 self._bundle_entry(
                     self._health_document_composition(file, care_context_id)
@@ -85,3 +90,12 @@ class HealthDocumentCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
+        try:
+            logger.info(
+            "Health Document FHIR Bundle:\n%s",
+            json.dumps(bundle.model_dump(mode="json"), indent=2),
+        )
+        except Exception:
+            logger.exception("Failed to serialize Health Document bundle")
+
+        return bundle

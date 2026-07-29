@@ -6,6 +6,10 @@ from fhir.resources.R4B.coding import Coding
 from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from abdm.service.helper import uuid
 from care.emr.models.allergy_intolerance import (
@@ -180,7 +184,7 @@ class OPConsultCompositionMixin:
     def create_op_consult_record(
         self, encounter: EncounterModel, care_context_id: str = uuid()
     ):
-        return self._bundle(
+        bundle= self._bundle(
             entries=[
                 self._bundle_entry(
                     self._op_consult_composition(encounter, care_context_id)
@@ -189,3 +193,12 @@ class OPConsultCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
+        try:
+            logger.info(
+            "OP Consult FHIR Bundle:\n%s",
+            json.dumps(bundle.model_dump(mode="json"), indent=2),
+        )
+        except Exception:
+            logger.exception("Failed to serialize OP Consult bundle")
+
+        return bundle

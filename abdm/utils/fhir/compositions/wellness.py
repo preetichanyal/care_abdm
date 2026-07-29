@@ -6,6 +6,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import ABDMAPIException, uuid
 from care.emr.models.observation import Observation as ObservationModel
 from care.emr.models.questionnaire import (
@@ -72,7 +77,7 @@ class WellnessCompositionMixin:
         questionnaire_response: QuestionnaireResponseModel,
         care_context_id: str = uuid(),
     ):
-        return self._bundle(
+        bundle= self._bundle(
             entries=[
                 self._bundle_entry(
                     self._wellness_composition(questionnaire_response, care_context_id)
@@ -81,3 +86,13 @@ class WellnessCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
+        try:
+           logger.info(
+            "Wellness FHIR Bundle:\n%s",
+            json.dumps(bundle.model_dump(mode="json"), indent=2),
+        )
+        except Exception:
+            logger.exception("Failed to serialize Wellness bundle")
+
+        return bundle
+ 

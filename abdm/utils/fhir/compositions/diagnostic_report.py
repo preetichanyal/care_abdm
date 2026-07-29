@@ -5,6 +5,11 @@ from fhir.resources.R4B.coding import Coding
 from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
+import json
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 from abdm.service.helper import uuid
 from abdm.settings import plugin_settings as settings
@@ -19,6 +24,15 @@ class DiagnosticReportCompositionMixin:
     ):
         encounter = diagnostic_report.encounter
         service_request = diagnostic_report.service_request
+
+        organization = self._organization(encounter.facility)
+        author_user = diagnostic_report.created_by
+
+        author = (
+          self._reference(self._practitioner(author_user))
+          if author_user
+          else self._reference(organization)
+        )
 
         return Composition(
             id=care_context_id,
@@ -52,7 +66,8 @@ class DiagnosticReportCompositionMixin:
             ],
             subject=self._reference(self._patient(encounter.patient)),
             encounter=self._reference(self._encounter(encounter)),
-            author=[self._reference(self._organization(encounter.facility))],
+            #author=[self._reference(self._organization(encounter.facility))],
+            author=[author],
         )
 
     def create_diagnostic_report_record(
@@ -60,7 +75,7 @@ class DiagnosticReportCompositionMixin:
         diagnostic_report: DiagnosticReportModel,
         care_context_id: str = uuid(),
     ):
-        return self._bundle(
+        bundle= self._bundle(
             entries=[
                 self._bundle_entry(
                     self._diagnostic_report_composition(
@@ -71,3 +86,12 @@ class DiagnosticReportCompositionMixin:
             ],
             care_context_id=care_context_id,
         )
+        try:
+            logger.info(
+            "Diagnostic Report FHIR Bundle:\n%s",
+            json.dumps(bundle.model_dump(mode="json"), indent=2),
+        )
+        except Exception:
+            logger.exception("Failed to serialize Diagnostic Report bundle")
+
+        return bundle
