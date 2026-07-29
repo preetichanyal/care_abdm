@@ -30,11 +30,12 @@ class PrescriptionCompositionMixin:
         organization = self._organization(encounter.facility)
         author_user = requests[0].created_by
 
-        author = (
-         self._reference(self._practitioner(author_user))
-         if author_user
-         else self._reference(organization)
-        )
+        authors = []
+
+        if author_user:
+             authors.append(self._reference(self._practitioner(author_user)))
+
+        authors.append(self._reference(organization))
 
         return Composition(
             id=care_context_id,
@@ -86,7 +87,7 @@ class PrescriptionCompositionMixin:
             #author=[
              #   self._reference(self._organization(requests[0].encounter.facility))
             #],
-            author=[author],
+           author=authors,
         )
 
     def create_prescription_record(

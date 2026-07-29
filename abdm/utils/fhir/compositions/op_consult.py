@@ -51,6 +51,17 @@ class OPConsultCompositionMixin:
         med_statements = MedicationStatementModel.objects.filter(encounter=encounter)
         files = FileUploadModel.objects.filter(associating_id=encounter.external_id)
 
+        organization = self._organization(encounter.facility)
+
+        author_user = encounter.created_by
+
+        authors = []
+
+        if author_user:
+            authors.append(self._reference(self._practitioner(author_user)))
+
+        authors.append(self._reference(organization))
+
         return Composition(
             id=care_context_id,
             meta=Meta(
@@ -178,7 +189,8 @@ class OPConsultCompositionMixin:
             encounter=self._reference(
                 self._encounter(encounter, include_diagnosis=True)
             ),
-            author=[self._reference(self._organization(encounter.facility))],
+            #author=[self._reference(self._organization(encounter.facility))],
+            author=authors,
         )
 
     def create_op_consult_record(
