@@ -193,6 +193,9 @@ class EncounterMixin:
                     default=EncounterClassChoices.amb.value,
                 ),
                 "subject": self._reference(self._patient(encounter.patient)),
+                "serviceProvider": self._reference(
+                  self._organization(encounter.facility)
+                ),
                 "priority": self._concept_from_mapping(
                     system="http://terminology.hl7.org/CodeSystem/v3-ActPriority",
                     mapping=ENCOUNTER_PRIORITY_CODE_MAP,
