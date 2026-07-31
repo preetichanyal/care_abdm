@@ -51,7 +51,7 @@ class OPConsultCompositionMixin:
         med_statements = MedicationStatementModel.objects.filter(encounter=encounter)
         files = FileUploadModel.objects.filter(associating_id=encounter.external_id)
 
-        #organization = self._organization(encounter.facility)
+        organization = self._organization(encounter.facility)
 
         author_user = encounter.created_by
 
@@ -191,19 +191,18 @@ class OPConsultCompositionMixin:
             ),
             #author=[self._reference(self._organization(encounter.facility))],
             author=authors,
+            custodian=self._reference(organization),
         )
 
     def create_op_consult_record(
         self, encounter: EncounterModel, care_context_id: str = uuid()
     ):
-        organization = self._organization(encounter.facility)
 
         return self._bundle(
             entries=[
                 self._bundle_entry(
                     self._op_consult_composition(encounter, care_context_id)
                 ),
-                 self._bundle_entry(organization),
                 *[self._bundle_entry(profile) for profile in self.cached_profiles()],
             ],
             care_context_id=care_context_id,
