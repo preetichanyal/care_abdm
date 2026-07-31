@@ -35,7 +35,7 @@ class PrescriptionCompositionMixin:
         if author_user:
              authors.append(self._reference(self._practitioner(author_user)))
 
-        authors.append(self._reference(organization))
+        #authors.append(self._reference(organization))
 
         return Composition(
             id=care_context_id,
@@ -84,6 +84,7 @@ class PrescriptionCompositionMixin:
             ],
             subject=self._reference(self._patient(requests[0].patient)),
             encounter=self._reference(self._encounter(requests[0].encounter)),
+            custodian=self._reference(organization),
             #author=[
              #   self._reference(self._organization(requests[0].encounter.facility))
             #],
