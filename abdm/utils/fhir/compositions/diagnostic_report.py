@@ -28,12 +28,12 @@ class DiagnosticReportCompositionMixin:
         organization = self._organization(encounter.facility)
         author_user = diagnostic_report.created_by
 
-        author = (
-          self._reference(self._practitioner(author_user))
-          if author_user
-          else self._reference(organization)
-        )
+        authors = []
 
+        if author_user:
+           authors.append(
+             self._reference(self._practitioner(author_user))
+        )
         return Composition(
             id=care_context_id,
             meta=Meta(
@@ -67,7 +67,8 @@ class DiagnosticReportCompositionMixin:
             subject=self._reference(self._patient(encounter.patient)),
             encounter=self._reference(self._encounter(encounter)),
             #author=[self._reference(self._organization(encounter.facility))],
-            author=[author],
+            author=authors,
+            custodian=self._reference(organization),
         )
 
     def create_diagnostic_report_record(

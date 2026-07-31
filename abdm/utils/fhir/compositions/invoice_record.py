@@ -26,10 +26,11 @@ class InvoiceRecordCompositionMixin:
 
         organization = self._organization(invoice.facility)
         author_user = invoice.created_by
-        author = (
-            self._reference(self._practitioner(author_user))
-            if author_user
-            else self._reference(organization)
+        authors = []
+
+        if author_user:
+           authors.append(
+             self._reference(self._practitioner(author_user))
         )
 
         section_title = invoice.title or "Invoice Details"
@@ -60,7 +61,8 @@ class InvoiceRecordCompositionMixin:
             if primary_encounter
             else None,
             date=(invoice.issue_date or invoice.modified_date).isoformat(),
-            author=[author],
+            #author=[author],
+            author=authors,
             title=invoice.title or "Invoice Record",
             custodian=self._reference(organization),
             attester=[

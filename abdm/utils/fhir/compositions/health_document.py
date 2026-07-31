@@ -40,6 +40,19 @@ class HealthDocumentCompositionMixin:
             external_id=file.associating_id
         ).first()
 
+        organization = (
+            self._organization(encounter.facility)
+            if encounter
+            else None
+        )
+
+        authors = []
+
+        if file.created_by:
+            authors.append(
+                self._reference(self._practitioner(file.created_by))
+            )
+
         return Composition(
             id=care_context_id,
             meta=Meta(
@@ -75,7 +88,9 @@ class HealthDocumentCompositionMixin:
             )
             if encounter
             else None,
-            author=[self._reference(self._practitioner(file.created_by))],
+            #author=[self._reference(self._practitioner(file.created_by))],
+            author=authors,
+            custodian=self._reference(organization) if organization else None,
         )
 
     def create_health_document_record(
