@@ -185,7 +185,9 @@ class HIPCallbackViewSet(GenericViewSet):
         cache.set(
             f"abdm_link_token__{hf_id}__{health_id}",
             validated_data.get("linkToken"),
-            timeout=60 * 30,
+            #timeout=60 * 30,
+            timeout=60 * 60 * 24,  # 24 hours
+
         )
 
         link_care_context_request_cache_keys = cache.keys(
