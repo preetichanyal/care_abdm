@@ -7,6 +7,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import uuid
 from care.emr.models.allergy_intolerance import (
     AllergyIntolerance as AllergyIntoleranceModel,
@@ -37,6 +42,15 @@ class DischargeSummaryCompositionMixin:
         med_requests = MedicationRequestModel.objects.filter(encounter=encounter)
         med_statements = MedicationStatementModel.objects.filter(encounter=encounter)
         files = FileUploadModel.objects.filter(associating_id=encounter.external_id)
+
+        organization = self._organization(encounter.facility)
+
+        author_user = encounter.created_by
+
+        authors = []
+
+        if author_user:
+            authors.append(self._reference(self._practitioner(author_user)))
 
         return Composition(
             id=care_context_id,
@@ -165,7 +179,9 @@ class DischargeSummaryCompositionMixin:
             encounter=self._reference(
                 self._encounter(encounter, include_diagnosis=True)
             ),
-            author=[self._reference(self._organization(encounter.facility))],
+            #author=[self._reference(self._organization(encounter.facility))],
+            author=authors,
+            custodian=self._reference(organization),
         )
 
     def create_discharge_summary_record(

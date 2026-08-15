@@ -7,6 +7,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import ABDMAPIException, uuid
 from care.emr.models.encounter import Encounter as EncounterModel
 from care.emr.models.file_upload import FileUpload as FileUploadModel
@@ -34,6 +39,19 @@ class HealthDocumentCompositionMixin:
         encounter = EncounterModel.objects.filter(
             external_id=file.associating_id
         ).first()
+
+        organization = (
+            self._organization(encounter.facility)
+            if encounter
+            else None
+        )
+
+        authors = []
+
+        if file.created_by:
+            authors.append(
+                self._reference(self._practitioner(file.created_by))
+            )
 
         return Composition(
             id=care_context_id,
@@ -70,7 +88,9 @@ class HealthDocumentCompositionMixin:
             )
             if encounter
             else None,
-            author=[self._reference(self._practitioner(file.created_by))],
+            #author=[self._reference(self._practitioner(file.created_by))],
+            author=authors,
+            custodian=self._reference(organization) if organization else None,
         )
 
     def create_health_document_record(

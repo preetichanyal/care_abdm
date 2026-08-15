@@ -170,7 +170,8 @@ class GatewayService:
         cache.set(
             f"abdm_generate_token__{hf_id}__{abha_number.health_id}",
             timestamp(),
-            timeout=60 * 30,
+            #timeout=60 * 30,
+            timeout=60 * 60 * 24, # 24 hours
         )
 
         return {}

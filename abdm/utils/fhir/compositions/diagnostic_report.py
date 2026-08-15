@@ -5,6 +5,11 @@ from fhir.resources.R4B.coding import Coding
 from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
+import json
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 from abdm.service.helper import uuid
 from abdm.settings import plugin_settings as settings
@@ -20,6 +25,15 @@ class DiagnosticReportCompositionMixin:
         encounter = diagnostic_report.encounter
         service_request = diagnostic_report.service_request
 
+        organization = self._organization(encounter.facility)
+        author_user = diagnostic_report.created_by
+
+        authors = []
+
+        if author_user:
+           authors.append(
+             self._reference(self._practitioner(author_user))
+        )
         return Composition(
             id=care_context_id,
             meta=Meta(
@@ -52,7 +66,9 @@ class DiagnosticReportCompositionMixin:
             ],
             subject=self._reference(self._patient(encounter.patient)),
             encounter=self._reference(self._encounter(encounter)),
-            author=[self._reference(self._organization(encounter.facility))],
+            #author=[self._reference(self._organization(encounter.facility))],
+            author=authors,
+            custodian=self._reference(organization),
         )
 
     def create_diagnostic_report_record(

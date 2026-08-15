@@ -5,6 +5,11 @@ from fhir.resources.R4B.coding import Coding
 from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 from abdm.service.helper import uuid
 from abdm.settings import plugin_settings as settings
@@ -19,6 +24,19 @@ class PrescriptionCompositionMixin:
     def _prescription_composition(
         self, requests: list[MedicationRequestModel], care_context_id: str
     ):
+        
+        encounter = requests[0].encounter
+
+        organization = self._organization(encounter.facility)
+        author_user = requests[0].created_by
+
+        authors = []
+
+        if author_user:
+             authors.append(self._reference(self._practitioner(author_user)))
+
+        #authors.append(self._reference(organization))
+
         return Composition(
             id=care_context_id,
             meta=Meta(
@@ -66,9 +84,11 @@ class PrescriptionCompositionMixin:
             ],
             subject=self._reference(self._patient(requests[0].patient)),
             encounter=self._reference(self._encounter(requests[0].encounter)),
-            author=[
-                self._reference(self._organization(requests[0].encounter.facility))
-            ],
+            custodian=self._reference(organization),
+            #author=[
+             #   self._reference(self._organization(requests[0].encounter.facility))
+            #],
+           author=authors,
         )
 
     def create_prescription_record(

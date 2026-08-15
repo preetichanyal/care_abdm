@@ -6,6 +6,11 @@ from fhir.resources.R4B.composition import Composition, CompositionSection
 from fhir.resources.R4B.identifier import Identifier
 from fhir.resources.R4B.meta import Meta
 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 from abdm.service.helper import ABDMAPIException, uuid
 from care.emr.models.observation import Observation as ObservationModel
 from care.emr.models.questionnaire import (
@@ -30,6 +35,19 @@ class WellnessCompositionMixin:
             raise ABDMAPIException(
                 "No observations found for the given questionnaire response"
             )
+
+        organization = self._organization(
+            questionnaire_response.encounter.facility
+        ) if questionnaire_response.encounter else None
+
+        authors = []
+        if questionnaire_response.created_by:
+            authors.append(
+                self._reference(
+                    self._practitioner(questionnaire_response.created_by)
+                )
+            )
+
 
         return Composition(
             id=care_context_id,
@@ -62,9 +80,11 @@ class WellnessCompositionMixin:
             )
             if questionnaire_response.encounter
             else None,
-            author=[
-                self._reference(self._practitioner(questionnaire_response.created_by))
-            ],
+            #author=[
+            #    self._reference(self._practitioner(questionnaire_response.created_by))
+            #],
+            author=authors,
+            custodian=self._reference(organization) if organization else None,
         )
 
     def create_wellness_record(
